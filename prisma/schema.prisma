@@ -21,6 +21,11 @@ model User {
 
   sessions      Session[]
   accounts      Account[]
+  landlordProperties Property[] @relation("LandlordProperties")
+  brokerProperties Property[] @relation("BrokerProperties")
+  kebeleOfficials KebeleOfficial[]
+  favorites     Favorite[]
+  inquiries     PropertyInquiry[]
   
   @@map("user")
   @@index([nationalId])
@@ -78,4 +83,530 @@ enum Role {
   TENANT
   BROKER
   SERVICE_PROVIDER
+}
+
+
+model Region {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  code        String    @unique 
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+ 
+  zones       Zone[]
+  cities      City[]
+  woredas     Woreda[]
+  kebeles     Kebele[]
+  properties  Property[]
+
+  @@map("regions")
+}
+
+
+model Zone {
+  id          String    @id @default(cuid())
+  name        String    
+  code        String?   
+  
+
+  regionId    String
+  region      Region    @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+
+  woredas     Woreda[]
+  cities      City[]
+  kebeles     Kebele[]
+  properties  Property[]
+
+  @@unique([name, regionId])
+  @@map("zones")
+}
+
+
+model City {
+  id          String    @id @default(cuid())
+  name        String    
+  
+
+  regionId    String
+  region      Region    @relation(fields: [regionId], references: [id])
+  zoneId      String?   
+  zone        Zone?     @relation(fields: [zoneId], references: [id])
+  
+ 
+  cityType    CityType  @default(CITY)
+  
+  
+  municipalityName String?
+  municipalityPhone String?
+  municipalityEmail String?
+  
+  latitude    Float?
+  longitude   Float?
+  
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  subcities   Subcity[]
+  woredas     Woreda[]
+  kebeles     Kebele[]
+  properties  Property[]
+
+
+  @@unique([name, regionId])
+  @@map("cities")
+}
+
+
+model Subcity {
+  id          String    @id @default(cuid())
+  name        String   
+  code        String?  
+  
+  cityId      String
+  city        City      @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  
+ 
+  officeName  String?
+  officePhone String?
+  officeEmail String?
+  
+  latitude    Float?
+  longitude   Float?
+  
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+
+  woredas     Woreda[]
+  kebeles     Kebele[]
+  properties  Property[]
+
+
+  @@unique([name, cityId])
+  @@map("subcities")
+}
+
+
+model Woreda {
+  id          String    @id @default(cuid())
+  name        String   
+  number      Int?     
+  
+ 
+  regionId    String
+  region      Region    @relation(fields: [regionId], references: [id])
+  zoneId      String?
+  zone        Zone?     @relation(fields: [zoneId], references: [id])
+  cityId      String?
+  city        City?     @relation(fields: [cityId], references: [id])
+  subcityId   String?
+  subcity     Subcity?  @relation(fields: [subcityId], references: [id])
+  
+ 
+  officeName  String?
+  officePhone String?
+  officeEmail String?
+  
+ 
+  population  Int?
+  area        Float?    
+  
+  latitude    Float?
+  longitude   Float?
+  
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+ 
+  kebeles     Kebele[]
+  properties  Property[]
+
+
+  @@map("woredas")
+}
+
+
+model Kebele {
+  id          String    @id @default(cuid())
+  name        String   
+  number      Int?     
+  
+
+  regionId    String
+  region      Region    @relation(fields: [regionId], references: [id])
+  zoneId      String?
+  zone        Zone?     @relation(fields: [zoneId], references: [id])
+  cityId      String?
+  city        City?     @relation(fields: [cityId], references: [id])
+  subcityId   String?
+  subcity     Subcity?  @relation(fields: [subcityId], references: [id])
+  woredaId    String?
+  woreda      Woreda?   @relation(fields: [woredaId], references: [id])
+  
+
+  officeName      String? 
+  officePhone     String?
+  officeEmail     String?
+  
+
+  officialName    String?
+  officialTitle   String? 
+  officialPhone   String?
+  
+
+  population      Int?
+  area            Float?  
+  
+ 
+  sealImage       String?
+  sealCode        String? 
+  
+  latitude        Float?
+  longitude       Float?
+  
+
+  isActive        Boolean   @default(true)
+  hasDigitalSeal  Boolean   @default(false)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+
+  properties      Property[]
+  officials       KebeleOfficial[]
+  verifiedProperties VerifiedProperty[]
+
+  @@unique([name, woredaId])
+  @@unique([name, subcityId])
+  @@map("kebeles")
+}
+
+
+model KebeleOfficial {
+  id          String    @id @default(cuid())
+  
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  
+
+  kebeleId    String
+  kebele      Kebele    @relation(fields: [kebeleId], references: [id])
+  
+
+  position    String   
+  
+
+  startedAt   DateTime
+  endedAt     DateTime?
+  isActive    Boolean   @default(true)
+
+  verifiedProperties VerifiedProperty[]  
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, kebeleId])
+  @@map("kebele_officials")
+}
+
+
+model VerifiedProperty {
+  id          String    @id @default(cuid())
+  
+  propertyId  String
+  property    Property  @relation(fields: [propertyId], references: [id])
+  
+  kebeleId    String
+  kebele      Kebele    @relation(fields: [kebeleId], references: [id])
+  
+  officialId  String
+  official    KebeleOfficial @relation(fields: [officialId], references: [id])
+  
+
+  verifiedAt  DateTime  @default(now())
+  expiresAt   DateTime? 
+  
+ 
+  sealApplied Boolean   @default(true)
+  sealImage   String?  
+  
+ 
+  notes       String?
+  
+  createdAt   DateTime  @default(now())
+
+  @@unique([propertyId, kebeleId])
+  @@map("verified_properties")
+}
+
+
+enum CityType {
+  CITY         
+  TOWN         
+  ADMINISTRATION 
+  SPECIAL_ZONE  
+}
+
+
+model Property {
+  id              String    @id @default(cuid())
+  title           String    @map("title")
+  description     String    @map("description")
+  
+ 
+  propertyType    PropertyType @default(APARTMENT) @map("property_type")
+  status          PropertyStatus @default(AVAILABLE) @map("status")
+  
+  
+  bedrooms        Int       @default(1) @map("bedrooms")
+  bathrooms       Int       @default(1) @map("bathrooms")
+  area            Float     @map("area") // በካሬ ሜትር
+  floor           Int?      @map("floor")
+  totalFloors     Int?      @map("total_floors") // ህንጻው ጠቅላላ ፎቆች
+  
+  
+  hasFurniture    Boolean   @default(false) @map("has_furniture")
+  hasParking      Boolean   @default(false) @map("has_parking")
+  hasElevator     Boolean   @default(false) @map("has_elevator")
+  hasBalcony      Boolean   @default(false) @map("has_balcony")
+  hasGarden       Boolean   @default(false) @map("has_garden")
+  hasSecurity     Boolean   @default(false) @map("has_security")
+  hasBackupGenerator Boolean @default(false) @map("has_backup_generator")
+  hasWaterTank    Boolean   @default(false) @map("has_water_tank")
+  
+  
+  monthlyRent     Float     @map("monthly_rent")
+  securityDeposit Float     @map("security_deposit") 
+  minimumLeaseMonths Int    @default(6) @map("minimum_lease_months")
+  isNegotiable    Boolean   @default(false) @map("is_negotiable")
+  
+ 
+  landlordId      String    @map("landlord_id")
+  landlord        User      @relation("LandlordProperties", fields: [landlordId], references: [id])
+  
+  
+  brokerId        String?
+  broker          User?     @relation("BrokerProperties", fields: [brokerId], references: [id])
+  
+
+
+  regionId        String?
+  region          Region?   @relation(fields: [regionId], references: [id])
+
+  zoneId          String?
+  zone            Zone?     @relation(fields: [zoneId], references: [id])
+
+  cityId          String?
+  city            City?     @relation(fields: [cityId], references: [id])
+  
+
+  subcityId       String?
+  subcity         Subcity?  @relation(fields: [subcityId], references: [id])
+  
+
+  woredaId        String?
+  woreda          Woreda?   @relation(fields: [woredaId], references: [id])
+  
+
+  kebeleId        String?
+  kebele          Kebele?   @relation(fields: [kebeleId], references: [id])
+  
+
+  houseNumber     String?   @map("house_number")
+  streetName      String?   @map("street_name")
+  landmark        String?   @map("landmark") 
+  
+
+  latitude        Float?    @map("latitude")
+  longitude       Float?    @map("longitude")
+  googleMapsUrl   String?   @map("google_maps_url")
+  
+
+  fullAddress     String?   @map("full_address")
+  
+  
+  isVerified      Boolean   @default(false) @map("is_verified")
+  verifiedBy      String?   @map("verified_by") 
+  verifiedAt      DateTime? @map("verified_at")
+  verificationDocument String? @map("verification_document") 
+  
+
+  kebeleSeal      String?   @map("kebele_seal") 
+  sealAppliedAt   DateTime? @map("seal_applied_at")
+  sealExpiresAt   DateTime? @map("seal_expires_at")
+  
+
+  verificationHistory Json? @map("verification_history") 
+  
+
+  viewCount       Int       @default(0) @map("view_count")
+  favoriteCount   Int       @default(0) @map("favorite_count")
+  inquiryCount    Int       @default(0) @map("inquiry_count")
+
+  
+  availableFrom   DateTime? @map("available_from") 
+  isActive        Boolean   @default(true) @map("is_active")
+  featured        Boolean   @default(false) @map("featured") 
+  priority        Int       @default(0) @map("priority") 
+  
+
+  
+  images          PropertyImage[]
+  features        PropertyFeature[]
+  favorites       Favorite[]
+  inquiries       PropertyInquiry[]
+  verifiedProperties VerifiedProperty[]
+  
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+
+  @@index([landlordId])
+  @@index([brokerId])
+  @@index([status])
+  @@index([propertyType])
+  @@index([isVerified])
+  @@index([cityId])
+  @@index([subcityId])
+  @@index([woredaId])
+  @@index([kebeleId])
+  @@index([monthlyRent])
+  @@index([createdAt])
+  
+  @@map("properties")
+}
+
+
+model PropertyImage {
+  id              String    @id @default(cuid())
+  
+  propertyId      String
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  url             String    @map("url")
+  thumbnailUrl    String?   @map("thumbnail_url")
+  caption         String?   @map("caption")
+  
+  isPrimary       Boolean   @default(false) @map("is_primary")
+  order           Int       @default(0) @map("order")
+  
+  // የፎቶ መረጃ
+  fileSize        Int?      @map("file_size") // በባይት
+  mimeType        String?   @map("mime_type")
+  width           Int?      @map("width")
+  height          Int?      @map("height")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  
+  @@index([propertyId])
+  @@index([isPrimary])
+  @@map("property_images")
+}
+
+
+model PropertyFeature {
+  id              String    @id @default(cuid())
+  
+  propertyId      String
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  name            String    @map("name") 
+  category        String?   @map("category")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  
+  @@unique([propertyId, name])
+  @@index([propertyId])
+  @@map("property_features")
+}
+
+
+model Favorite {
+  id              String    @id @default(cuid())
+  
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  propertyId      String
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  
+  @@unique([userId, propertyId])
+  @@index([userId])
+  @@index([propertyId])
+  @@map("favorites")
+}
+
+
+model PropertyInquiry {
+  id              String    @id @default(cuid())
+  
+  propertyId      String
+  property        Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  
+  userId          String?   
+  user            User?     @relation(fields: [userId], references: [id])
+  
+ 
+  guestName       String?   @map("guest_name")
+  guestEmail      String?   @map("guest_email")
+  guestPhone      String?   @map("guest_phone")
+  
+  message         String    @map("message")
+  
+ 
+  status          InquiryStatus @default(PENDING) @map("status")
+  
+
+  response        String?   @map("response")
+  respondedBy     String?   @map("responded_by") 
+  respondedAt     DateTime? @map("responded_at")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  @@index([propertyId])
+  @@index([userId])
+  @@index([status])
+  @@map("property_inquiries")
+}
+
+
+enum PropertyType {
+  APARTMENT        
+  HOUSE            
+  VILLA           
+  STUDIO           
+  COMMERCIAL       
+  OFFICE           
+  WAREHOUSE        
+  LAND             
+}
+
+
+enum PropertyStatus {
+  AVAILABLE        
+  RENTED           
+  UNDER_MAINTENANCE 
+  UNAVAILABLE      
+  PENDING_VERIFICATION 
+}
+
+
+enum InquiryStatus {
+  PENDING         
+  RESPONDED        
+  CLOSED           
+  SPAM             
 }

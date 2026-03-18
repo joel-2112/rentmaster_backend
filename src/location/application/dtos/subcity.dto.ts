@@ -9,7 +9,7 @@ export class CreateSubcityDto {
   @IsOptional()
   code?: string;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty({ message: 'የከተማ አይዲ ያስፈልጋል' })
   cityId: string;
 
@@ -47,7 +47,7 @@ export class UpdateSubcityDto {
   @IsOptional()
   code?: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   cityId?: string;
 

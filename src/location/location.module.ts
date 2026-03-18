@@ -4,20 +4,18 @@ import { PrismaLocationRepository } from './infrastructure/repositories/persiste
 import { LocationUseCase } from './application/use-cases/location.use-case';
 import { LocationMapper } from './application/mappers/location.mapper';
 import { PrismaModule } from '../prisma/prisma.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AuthModule],
   controllers: [LocationController],
   providers: [
-    // Repositories
     PrismaLocationRepository,
     {
       provide: 'ILocationRepository',
       useClass: PrismaLocationRepository,
     },
-    // Use Cases
     LocationUseCase,
-    // Mappers
     LocationMapper,
   ],
   exports: [LocationUseCase],

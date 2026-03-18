@@ -7,11 +7,11 @@ export class CreateCityDto {
   @IsNotEmpty({ message: 'የከተማ ስም ያስፈልጋል' })
   name: string;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty({ message: 'የክልል አይዲ ያስፈልጋል' })
   regionId: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   zoneId?: string;
 

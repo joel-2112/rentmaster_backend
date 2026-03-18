@@ -9,7 +9,7 @@ export class CreateZoneDto {
   @IsOptional()
   code?: string;
 
-  @IsUUID()
+  @IsString()  
   @IsNotEmpty({ message: 'የክልል አይዲ ያስፈልጋል' })
   regionId: string;
 }
@@ -23,9 +23,9 @@ export class UpdateZoneDto {
   @IsOptional()
   code?: string;
 
-  @IsUUID()
-  @IsOptional()
-  regionId?: string;
+  @IsString()  
+  @IsNotEmpty({ message: 'የክልል አይዲ ያስፈልጋል' })
+  regionId: string;
 }
 
 export class ZoneResponseDto {

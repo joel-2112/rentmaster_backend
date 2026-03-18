@@ -9,19 +9,19 @@ export class CreateWoredaDto {
   @IsOptional()
   number?: number;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty({ message: 'የክልል አይዲ ያስፈልጋል' })
   regionId: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   zoneId?: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   cityId?: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   subcityId?: string;
 
@@ -67,19 +67,19 @@ export class UpdateWoredaDto {
   @IsOptional()
   number?: number;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   regionId?: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   zoneId?: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   cityId?: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   subcityId?: string;
 

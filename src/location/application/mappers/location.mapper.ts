@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { RegionEntity } from '../../domain/entities/region.entity';
 import { ZoneEntity } from '../../domain/entities/zone.entity';
-import { CityEntity, CityType } from '../../domain/entities/city.entity';
+import { CityEntity } from '../../domain/entities/city.entity';
 import { SubcityEntity } from '../../domain/entities/subcity.entity';
 import { WoredaEntity } from '../../domain/entities/woreda.entity';
 import { KebeleEntity } from '../../domain/entities/kebele.entity';
-
+import { CityType } from '@prisma/client';
 import { CreateRegionDto, UpdateRegionDto, RegionResponseDto } from '../dtos/region.dto';
 import { CreateZoneDto, UpdateZoneDto, ZoneResponseDto } from '../dtos/zone.dto';
 import { CreateCityDto, UpdateCityDto, CityResponseDto } from '../dtos/city.dto';

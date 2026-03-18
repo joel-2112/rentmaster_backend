@@ -22,7 +22,7 @@ import { UpdateUserDto } from '../../application/dtos/update-user.dto';
 import { UserResponseDto } from '../../application/dtos/user-response.dto';
 
 @Controller('users')
-@UseGuards(AuthGuard) // ሁሉም መንገዶች በAuthGuard ይጠበቃሉ (Public ካልሆነ በስተቀር)
+@UseGuards(AuthGuard) 
 export class UserController {
   constructor(private readonly userUseCase: UserUseCase) {}
 

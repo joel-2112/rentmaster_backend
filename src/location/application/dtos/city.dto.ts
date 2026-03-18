@@ -51,6 +51,48 @@ export class CreateCityDto {
   isActive?: boolean;
 }
 
+export class UpdateCityDto {
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsUUID()
+  @IsOptional()
+  regionId?: string;
+
+  @IsUUID()
+  @IsOptional()
+  zoneId?: string;
+
+  @IsEnum(CityType)
+  @IsOptional()
+  cityType?: CityType;
+
+  @IsString()
+  @IsOptional()
+  municipalityName?: string;
+
+  @IsString()
+  @IsOptional()
+  municipalityPhone?: string;
+
+  @IsString()
+  @IsOptional()
+  municipalityEmail?: string;
+
+  @IsNumber()
+  @IsOptional()
+  latitude?: number;
+
+  @IsNumber()
+  @IsOptional()
+  longitude?: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
+}
+
 export class CityResponseDto {
   id: string;
   name: string;

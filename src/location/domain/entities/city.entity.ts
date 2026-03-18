@@ -1,13 +1,6 @@
 import { RegionEntity } from "./region.entity";
 import { ZoneEntity } from "./zone.entity";
-
-// ከዚህ በፊት የፈጠርነውን Enum እንጠቀም
-export enum CityType {
-  CITY = 'CITY',
-  TOWN = 'TOWN',
-  ADMINISTRATION = 'ADMINISTRATION',
-  SPECIAL_ZONE = 'SPECIAL_ZONE'
-}
+import { CityType } from '@prisma/client';
 
 export class CityEntity {
   id: string;

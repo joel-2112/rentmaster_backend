@@ -1,13 +1,6 @@
 // src/location/application/dto/city.dto.ts
 import { IsString, IsNotEmpty, IsOptional, IsUUID, IsNumber, IsBoolean, IsEnum } from 'class-validator';
-
-// የራስህን Enum ፍጠር
-export enum CityType {
-  CITY = 'CITY',
-  TOWN = 'TOWN',
-  ADMINISTRATION = 'ADMINISTRATION',
-  SPECIAL_ZONE = 'SPECIAL_ZONE'
-}
+import {CityType} from '@prisma/client';
 
 export class CreateCityDto {
   @IsString()

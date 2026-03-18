@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 // import { RolesGuard } from './common/guards/roles.guard';
 // import { AuthGuard } from './common/guards/auth.guard';
 // import { APP_GUARD } from '@nestjs/core';
+import { LocationModule } from './location/location.module';
 
 // add this on the providers array if you want to apply the guards globally
 //  {
@@ -32,6 +33,7 @@ import { UsersModule } from './users/users.module';
     RedisModule,
     AuthModule,
     UsersModule,
+    LocationModule,
   ],
   controllers: [AppController],
   providers: [

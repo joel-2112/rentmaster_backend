@@ -1,0 +1,9 @@
+// src/common/constants/roles.enum.ts
+export enum Role {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  KEBELE_OFFICIAL = 'KEBELE_OFFICIAL',
+  LANDLORD = 'LANDLORD',
+  TENANT = 'TENANT',
+  BROKER = 'BROKER',
+  SERVICE_PROVIDER = 'SERVICE_PROVIDER',
+}

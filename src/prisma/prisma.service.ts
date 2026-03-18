@@ -14,7 +14,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   async onModuleInit() {
     await this.$connect();
-    console.log('✅ Rent Master: Database connected... successfully');
+    console.log('✅ Resnt Master: Database connected... successfully');
   }
 
   async onModuleDestroy() {

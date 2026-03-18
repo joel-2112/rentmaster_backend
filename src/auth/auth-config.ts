@@ -13,10 +13,35 @@ export const getAuthConfig = (prisma: PrismaService) => {
     },
     user: {
       additionalFields: {
+        nationalId: {
+          type: 'string',
+          required: true,
+          input: true, 
+        },
+        phone: {
+          type: 'string',
+          required: true,
+          input: true,
+        },
         role: {
           type: 'string',
           defaultValue: 'TENANT',
           required: true,
+          input: true,
+        },
+        isVerified: {
+          type: 'boolean',
+          defaultValue: false,
+          required: true,
+        },
+        emailVerified: {
+          type: 'boolean', 
+          defaultValue: false,
+          required: true,
+        },
+        image: {
+          type: 'string',
+          required: false,
         },
       },
     },

@@ -1,7 +1,7 @@
 import { PropertyType, PropertyStatus } from '@prisma/client';
 
 // የአካባቢ ተዋረድ ስሞች ለማሳየት
-class LocationHierarchyDto {
+export class LocationHierarchyDto {
   regionId: string;
   regionName?: string;
   zoneId?: string;
@@ -42,7 +42,7 @@ export class PropertyFeatureResponseDto {
 }
 
 // የቤት ባለቤት መረጃ (አጭር)
-class LandlordInfoDto {
+export class LandlordInfoDto {
   id: string;
   name: string;
   phone: string;
@@ -51,7 +51,7 @@ class LandlordInfoDto {
 }
 
 // የደላላ መረጃ (አጭር)
-class BrokerInfoDto {
+export class BrokerInfoDto {
   id: string;
   name: string;
   phone: string;
@@ -118,3 +118,4 @@ export class PropertyResponseDto {
   createdAt: Date;
   updatedAt: Date;
 }
+

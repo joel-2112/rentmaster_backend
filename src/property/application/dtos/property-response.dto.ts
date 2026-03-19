@@ -119,3 +119,27 @@ export class PropertyResponseDto {
   updatedAt: Date;
 }
 
+// ለአጭር የቤት ዝርዝር ማሳያ (ለዝርዝር ገጾች)
+export class PropertyListItemDto {
+  id: string;
+  title: string;
+  propertyType: PropertyType;
+  status: PropertyStatus;
+  monthlyRent: number;
+  area: number;
+  bedrooms: number;
+  bathrooms: number;
+  location: {
+    regionName?: string;
+    cityName?: string;
+    subcityName?: string;
+  };
+  primaryImage?: {
+    url: string;
+    thumbnailUrl?: string;
+  };
+  isVerified: boolean;
+  featured: boolean;
+  createdAt: Date;
+}
+

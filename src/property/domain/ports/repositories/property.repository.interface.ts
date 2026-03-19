@@ -312,4 +312,8 @@ export interface IPropertyRepository {
   
   // በቤት አይነት ያለውን አማካይ ዋጋ ማግኘት
   getAveragePriceByPropertyType(propertyType: string): Promise<number>;
+  // የቤት ጥያቄ ቆጠራ መጨመር
+  incrementPropertyInquiryCount(propertyId: string): Promise<void>;
+
+
 }

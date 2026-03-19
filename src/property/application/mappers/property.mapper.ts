@@ -509,7 +509,7 @@ export class PropertyMapper {
 
   // የፍለጋ ውጤት ማዘጋጀት
   prepareSearchResponse(
-    data: PropertyEntity[],
+    data: PropertyResponseDto[],
     total: number,
     page: number,
     limit: number,
@@ -517,7 +517,7 @@ export class PropertyMapper {
     const totalPages = Math.ceil(total / limit);
 
     return {
-      data: this.toPropertyResponseDtoList(data),
+      data,
       meta: {
         total,
         page,

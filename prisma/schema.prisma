@@ -26,6 +26,12 @@ model User {
   kebeleOfficials KebeleOfficial[]
   favorites     Favorite[]
   inquiries     PropertyInquiry[]
+  tenantContracts   Contract[] @relation("TenantContracts")
+  landlordContracts Contract[] @relation("LandlordContracts")
+  brokerContracts   Contract[] @relation("BrokerContracts")
+ // paymentHistory    PaymentHistory[] @relation("PaymentsByUser")
+ // receivedPayments  PaymentHistory[] @relation("PaymentsReceivedBy")
+ // uploadedDocuments ContractDocument[]
   
   @@map("user")
   @@index([nationalId])
@@ -465,7 +471,8 @@ model Property {
   favorites       Favorite[]
   inquiries       PropertyInquiry[]
   verifiedProperties VerifiedProperty[]
-  
+  contracts       Contract[]
+
 
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
@@ -609,4 +616,312 @@ enum InquiryStatus {
   RESPONDED        
   CLOSED           
   SPAM             
+}
+
+// Contract Model - የኪራይ ውል
+model Contract {
+  id              String    @id @default(cuid())
+  contractNumber  String    @unique @map("contract_number")
+  
+  // የውል ወገኖች
+  propertyId      String    @map("property_id")
+  property        Property  @relation(fields: [propertyId], references: [id])
+  
+  tenantId        String    @map("tenant_id")
+  tenant          User      @relation("TenantContracts", fields: [tenantId], references: [id])
+  
+  landlordId      String    @map("landlord_id")
+  landlord        User      @relation("LandlordContracts", fields: [landlordId], references: [id])
+  
+  brokerId        String?   @map("broker_id")
+  broker          User?     @relation("BrokerContracts", fields: [brokerId], references: [id])
+  
+  // የኪራይ ዝርዝሮች
+  monthlyRent     Float     @map("monthly_rent")
+  securityDeposit Float     @map("security_deposit")
+  paymentDay      Int       @default(1) @map("payment_day")
+  
+  // የውል ቀናት
+  startDate       DateTime  @map("start_date")
+  endDate         DateTime  @map("end_date")
+  
+  // ልዩ ሁኔታዎች
+  termsAndConditions String? @map("terms_and_conditions")
+  specialClauses  Json?     @map("special_clauses") // ልዩ ውሎች በJSON
+  
+  // የውል ሁኔታ
+  status          ContractStatus @default(DRAFT)
+  
+  // የፊርማ ሁኔታዎች
+  landlordSigned  Boolean   @default(false) @map("landlord_signed")
+  tenantSigned    Boolean   @default(false) @map("tenant_signed")
+  brokerSigned    Boolean   @default(false) @map("broker_signed")
+  
+  landlordSignedAt DateTime? @map("landlord_signed_at")
+  tenantSignedAt   DateTime? @map("tenant_signed_at")
+  brokerSignedAt   DateTime? @map("broker_signed_at")
+  
+  // የቀበሌ ማረጋገጫ
+  kebeleApproved  Boolean   @default(false) @map("kebele_approved")
+  kebeleApprovedBy String?   @map("kebele_approved_by")
+  kebeleApprovedAt DateTime? @map("kebele_approved_at")
+  kebeleSeal      String?   @map("kebele_seal")
+  kebeleNotes     String?   @map("kebele_notes")
+  
+  // የሰነድ ማመንጫ
+  pdfUrl          String?   @map("pdf_url")
+  pdfVersion      Int       @default(1) @map("pdf_version")
+  
+  // የማቋረጫ መረጃ
+  terminatedAt    DateTime? @map("terminated_at")
+  terminationReason String?  @map("termination_reason")
+  terminationBy   String?   @map("termination_by")
+  
+  // የማደስ መረጃ
+  renewalCount    Int       @default(0) @map("renewal_count")
+  lastRenewedAt   DateTime? @map("last_renewed_at")
+  
+  // ሌሎች
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  // ግንኙነቶች
+  payments        PaymentSchedule[]
+  paymentHistory  PaymentHistory[]
+  contractDocuments ContractDocument[]
+  notifications   ContractNotification[]
+  
+  @@index([contractNumber])
+  @@index([propertyId])
+  @@index([tenantId])
+  @@index([landlordId])
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+  @@map("contracts")
+}
+
+// PaymentSchedule - ወርሃዊ ክፍያ መርሐ ግብር
+model PaymentSchedule {
+  id              String    @id @default(cuid())
+  
+  contractId      String    @map("contract_id")
+  contract        Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  
+  // የክፍያ ዝርዝሮች
+  dueDate         DateTime  @map("due_date")
+  amount          Float     @map("amount")
+  paymentType     PaymentType @default(RENT) @map("payment_type")
+  
+  // ክፍያ ሁኔታ
+  status          PaymentStatus @default(PENDING)
+  paidAt          DateTime? @map("paid_at")
+  paidAmount      Float?    @map("paid_amount")
+  
+  // ቅጣት ክፍያ (ከዘገየ)
+  penaltyAmount   Float?    @map("penalty_amount")
+  penaltyAppliedAt DateTime? @map("penalty_applied_at")
+  
+  // የክፍያ መረጃ
+  transactionId   String?   @map("transaction_id")
+  paymentMethod   String?   @map("payment_method")
+  receiptUrl      String?   @map("receipt_url")
+  
+  // ማስታወሻ
+  notes           String?   @map("notes")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  // ግንኙነቶች
+  paymentHistory  PaymentHistory[] @relation("ScheduleHistory")  
+  @@unique([contractId, dueDate])
+  @@index([contractId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("payment_schedules")
+}
+
+// PaymentHistory - የተከፈሉ ክፍያዎች ታሪክ
+model PaymentHistory {
+  id              String    @id @default(cuid())
+  
+  contractId      String    @map("contract_id")
+  contract        Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  
+  scheduleId      String?   @map("schedule_id")
+  schedule        PaymentSchedule? @relation("ScheduleHistory", fields: [scheduleId], references: [id])
+  
+  // የክፍያ ዝርዝሮች
+  amount          Float     @map("amount")
+  paidAt          DateTime  @map("paid_at")
+  paymentType     PaymentType @default(RENT)
+  
+  // የክፍያ ዘዴ
+  paymentMethod   String    @map("payment_method") // tele_birr, cbe_birr, cash, bank_transfer
+  transactionId   String?   @map("transaction_id")
+  transactionRef  String?   @map("transaction_ref")
+  
+  // ተከፋይ መረጃ
+  paidBy          String    @map("paid_by") // userId
+  paidByName      String?   @map("paid_by_name")
+  
+  // ተቀባይ መረጃ
+  receivedBy      String?   @map("received_by")
+  receivedByName  String?   @map("received_by_name")
+  
+  // ቅጣት ክፍያ ከሆነ
+  isPenalty       Boolean   @default(false) @map("is_penalty")
+  originalAmount  Float?    @map("original_amount")
+  penaltyAmount   Float?    @map("penalty_amount")
+  
+  // ደረሰኝ
+  receiptUrl      String?   @map("receipt_url")
+  receiptNumber   String?   @map("receipt_number")
+  
+  // ማስታወሻ
+  notes           String?   @map("notes")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  
+  @@index([contractId])
+  @@index([scheduleId])
+  @@index([transactionId])
+  @@index([paidAt])
+  @@map("payment_history")
+}
+
+// ContractDocument - ከውል ጋር የተያያዙ ሰነዶች
+model ContractDocument {
+  id              String    @id @default(cuid())
+  
+  contractId      String    @map("contract_id")
+  contract        Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  
+  documentType    DocumentType @default(CONTRACT)
+  title           String    @map("title")
+  description     String?   @map("description")
+  
+  fileUrl         String    @map("file_url")
+  fileName        String    @map("file_name")
+  fileSize        Int?      @map("file_size")
+  mimeType        String?   @map("mime_type")
+  
+  uploadedBy      String    @map("uploaded_by")
+  uploadedAt      DateTime  @default(now()) @map("uploaded_at")
+  
+  isVerified      Boolean   @default(false) @map("is_verified")
+  verifiedBy      String?   @map("verified_by")
+  verifiedAt      DateTime? @map("verified_at")
+  
+  @@index([contractId])
+  @@index([documentType])
+  @@map("contract_documents")
+}
+
+// ContractNotification - ከውል ጋር የተያያዙ ማሳሰቢያዎች
+model ContractNotification {
+  id              String    @id @default(cuid())
+  
+  contractId      String    @map("contract_id")
+  contract        Contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  
+  // የማሳሰቢያ ዝርዝሮች
+  notificationType NotificationType @default(PAYMENT_REMINDER)
+  title           String    @map("title")
+  message         String    @map("message")
+  
+  // ተቀባይ
+  recipientId     String    @map("recipient_id")
+  recipientRole   String    @map("recipient_role") // TENANT, LANDLORD, BROKER
+  
+  // ማሳሰቢያ ሁኔታ
+  status          NotificationStatus @default(PENDING)
+  sentAt          DateTime? @map("sent_at")
+  
+  // የመላኪያ ዘዴዎች
+  sentViaEmail    Boolean   @default(false) @map("sent_via_email")
+  sentViaSms      Boolean   @default(false) @map("sent_via_sms")
+  sentViaPush     Boolean   @default(false) @map("sent_via_push")
+  sentViaInApp    Boolean   @default(false) @map("sent_via_in_app")
+  
+  // ውጤት
+  errorMessage    String?   @map("error_message")
+  
+  // ቀጠሮ
+  scheduledFor    DateTime? @map("scheduled_for")
+  
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  
+  @@index([contractId])
+  @@index([recipientId])
+  @@index([status])
+  @@index([notificationType])
+  @@map("contract_notifications")
+}
+
+// Contract Status Enum
+enum ContractStatus {
+  DRAFT             // ረቂቅ
+  PENDING_TENANT    // ተከራይ ፊርማ ይጠበቃል
+  PENDING_LANDLORD  // አከራይ ፊርማ ይጠበቃል
+  PENDING_BROKER    // ደላላ ፊርማ ይጠበቃል
+  PENDING_KEBELE    // የቀበሌ ማረጋገጫ ይጠበቃል
+  ACTIVE            // ንቁ
+  EXPIRED           // ጊዜው ያለፈበት
+  TERMINATED        // ተቋርጧል
+  DISPUTED          // ክርክር አለበት
+}
+
+// Payment Type Enum
+enum PaymentType {
+  RENT              // ኪራይ
+  SECURITY_DEPOSIT  // ተያዥ ገንዘብ
+  PENALTY           // ቅጣት
+  COMMISSION        // ኮሚሽን (ለደላላ)
+  RENEWAL_FEE       // የማደስ ክፍያ
+}
+
+// Payment Status Enum
+enum PaymentStatus {
+  PENDING           // በመጠባበቅ ላይ
+  PAID              // ተከፍሏል
+  OVERDUE           // ቀኑ አልፎበታል
+  PARTIAL           // በከፊል ተከፍሏል
+  CANCELLED         // ተሰርዟል
+  REFUNDED          // ተመልሷል
+}
+
+// Document Type Enum
+enum DocumentType {
+  CONTRACT          // ዋናው ውል
+  AMENDMENT         // ማሻሻያ
+  ADDENDUM          // ተጨማሪ ሰነድ
+  ID_PROOF          // የማንነት ማረጋገጫ
+  PROPERTY_DOCUMENT // የቤት ሰነድ
+  RECEIPT           // ደረሰኝ
+  OTHER             // ሌላ
+}
+
+// Notification Type Enum
+enum NotificationType {
+  PAYMENT_REMINDER      // የክፍያ ማሳሰቢያ
+  PAYMENT_RECEIVED      // ክፍያ ተቀብሏል
+  CONTRACT_SIGNED       // ውል ተፈርሟል
+  CONTRACT_APPROVED     // ውል ተጸድቋል
+  CONTRACT_EXPIRING     // ውል ሊያበቃ ነው
+  CONTRACT_TERMINATED   // ውል ተቋርጧል
+  MAINTENANCE_REQUEST   // ጥገና ጥያቄ
+  GENERAL               // አጠቃላይ
+}
+
+// Notification Status Enum
+enum NotificationStatus {
+  PENDING           // በመጠባበቅ ላይ
+  SENT              // ተልኳል
+  FAILED            // አልተላከም
+  READ              // ተነቧል
+  SCHEDULED         // ቀጠሮ ተይዞለታል
 }

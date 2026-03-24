@@ -45,6 +45,9 @@ export const getAuthConfig = (prisma: PrismaService) => {
         },
       },
     },
+    advanced: {
+        disableOriginCheck: true,
+      },
     session: {
       cookieCache: {
         enabled: true,

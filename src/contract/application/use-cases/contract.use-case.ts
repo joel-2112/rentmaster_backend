@@ -327,39 +327,41 @@ async getContractsByBroker(
   /**
    * ውል ማረጋገጥ (ለቀበሌ ባለስልጣን)
    */
-  async approveContract(
-    id: string,
-    officialId: string,
-    seal?: string,
-    notes?: string
-  ): Promise<ContractResponseDto> {
-    const contract = await this.contractRepository.getContractById(id);
-    if (!contract) {
-      throw new NotFoundException(`የኪራይ ውል በID '${id}' አልተገኘም`);
-    }
 
-    if (contract.status !== ContractStatus.PENDING_KEBELE) {
-      throw new ConflictException('ውሉ ለማረጋገጥ ዝግጁ አይደለም');
-    }
-
-    if (!contract.landlordSigned || !contract.tenantSigned) {
-      throw new ConflictException('ውሉ በሁሉም ወገኖች አልተፈረመም');
-    }
-
-    if (contract.brokerId && !contract.brokerSigned) {
-      throw new ConflictException('ውሉ በደላላ አልተፈረመም');
-    }
-
-    const updatedContract = await this.contractRepository.updateContract(id, {
-      kebeleApproved: true,
-      kebeleApprovedBy: officialId,
-      kebeleApprovedAt: new Date(),
-      kebeleStamp: seal,
-      status: ContractStatus.ACTIVE,
-    } as any);
-
-    return this.getContractById(updatedContract.id);
+async approveContract(
+  id: string,
+  officialId: string,
+  seal?: string,
+  notes?: string
+): Promise<ContractResponseDto> {
+  const contract = await this.contractRepository.getContractById(id);
+  if (!contract) {
+    throw new NotFoundException(`የኪራይ ውል በID '${id}' አልተገኘም`);
   }
+
+  if (contract.status !== ContractStatus.PENDING_KEBELE) {
+    throw new ConflictException('ውሉ ለማረጋገጥ ዝግጁ አይደለም');
+  }
+
+  if (!contract.landlordSigned || !contract.tenantSigned) {
+    throw new ConflictException('ውሉ በሁሉም ወገኖች አልተፈረመም');
+  }
+
+  if (contract.brokerId && !contract.brokerSigned) {
+    throw new ConflictException('ውሉ በደላላ አልተፈረመም');
+  }
+
+  const updatedContract = await this.contractRepository.updateContract(id, {
+    kebeleApproved: true,
+    kebeleApprovedBy: officialId,
+    kebeleApprovedAt: new Date(),
+    kebeleSeal: seal,  // 👈 ይሄን ቀይር (kebeleStamp ሳይሆን kebeleSeal)
+    status: ContractStatus.ACTIVE,
+    kebeleNotes: notes,  // 👈 ይሄንም ጨምር
+  } as any);
+
+  return this.getContractById(updatedContract.id);
+}
 
   /**
    * ውል አለመቀበል (ለቀበሌ ባለስልጣን)

@@ -3,19 +3,19 @@ import { Type } from 'class-transformer';
 import { ContractStatus } from './contract-status.enum';
 
 export class CreateContractDto {
-  @IsUUID()
+  @IsString()
   @IsNotEmpty({ message: 'የቤት አይዲ ያስፈልጋል' })
   propertyId: string;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty({ message: 'የተከራይ አይዲ ያስፈልጋል' })
   tenantId: string;
 
-  @IsUUID()
+  @IsString()
   @IsOptional()
   brokerId?: string;
 
-  @IsUUID()
+  @IsString()
   @IsNotEmpty({ message: 'የአከራይ አይዲ ያስፈልጋል' })  
   landlordId: string;
 

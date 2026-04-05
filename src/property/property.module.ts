@@ -4,7 +4,7 @@ import { PrismaPropertyRepository } from './infrastructure/repositories/persiste
 import { PropertyUseCase } from './application/use-cases/property.use-case';
 import { PropertyMapper } from './application/mappers/property.mapper';
 import { PrismaModule } from '../prisma/prisma.module';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [PrismaModule, AuthModule],

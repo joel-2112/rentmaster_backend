@@ -4,7 +4,7 @@ import { PrismaContractRepository } from './infrastructure/repositories/persiste
 import { ContractUseCase } from './application/use-cases/contract.use-case';
 import { ContractMapper } from './application/mappers/contract.mapper';
 import { PrismaModule } from '../prisma/prisma.module';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [PrismaModule, AuthModule],

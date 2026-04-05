@@ -4,7 +4,7 @@ import { UserRepository } from './infrastructure/repositories//persistence/prism
 import { UserUseCase } from './application/use-cases/user.use-case';
 import { UserMapper } from './application/mappers/user.mapper';
 import { PrismaModule } from '../prisma/prisma.module';
-import { AuthModule } from 'src/auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [PrismaModule, AuthModule],

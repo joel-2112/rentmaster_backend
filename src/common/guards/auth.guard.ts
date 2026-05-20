@@ -1,37 +1,47 @@
-// src/common/guards/auth.guard.ts
 import {
   CanActivate,
   ExecutionContext,
   Injectable,
   UnauthorizedException,
+  Inject,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(
+    private reflector: Reflector,
+    @Inject('BETTER_AUTH') private readonly auth: any
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Check if the route or controller is marked @Public()
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),   // method-level decorator
-      context.getClass(),     // class-level decorator
+      context.getHandler(),
+      context.getClass(),
     ]);
 
-    // If public, skip auth entirely — return true immediately
     if (isPublic) return true;
 
-    // Otherwise validate the session/token as normal
     const request = context.switchToHttp().getRequest();
-    const user = request.user; // populated by better-auth middleware
+    
+    try {
+      const session = await this.auth.api.getSession({
+        headers: request.headers,
+      });
 
-    if (!user) {
+      if (!session || !session.user) {
+        throw new UnauthorizedException(
+          'ይህንን ለማድረግ መጀመሪያ መግባት (Login) አለብህ!'
+        );
+      }
+
+      request.user = session.user;
+      return true;
+    } catch (err) {
       throw new UnauthorizedException(
         'ይህንን ለማድረግ መጀመሪያ መግባት (Login) አለብህ!'
       );
     }
-
-    return true;
   }
 }
